@@ -26,6 +26,14 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        binding.downloadButton.setOnClickListener(view -> startDownload());
+    }
 
+    private void startDownload() {
+        new DownloadAsyncTask(
+                binding.downloadButton,
+                binding.progressBar,
+                binding.downloadTextView
+        ).execute();
     }
 }
