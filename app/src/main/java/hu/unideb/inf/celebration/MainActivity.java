@@ -13,6 +13,7 @@ import hu.unideb.inf.celebration.databinding.ActivityMainBinding;
 public class MainActivity extends AppCompatActivity {
 
     ActivityMainBinding binding;
+    private String path;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,13 +28,15 @@ public class MainActivity extends AppCompatActivity {
         });
 
         binding.downloadButton.setOnClickListener(view -> startDownload());
+        path = getFilesDir().getParent();
     }
 
     private void startDownload() {
         new DownloadAsyncTask(
                 binding.downloadButton,
                 binding.progressBar,
-                binding.downloadTextView
+                binding.downloadTextView,
+                path
         ).execute();
     }
 }

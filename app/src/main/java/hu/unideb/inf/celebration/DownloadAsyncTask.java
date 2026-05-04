@@ -1,21 +1,30 @@
 package hu.unideb.inf.celebration;
 
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.ref.WeakReference;
+import java.net.URL;
+import java.net.URLConnection;
 
 public class DownloadAsyncTask extends AsyncTask<Void, Integer, String> {
     WeakReference<Button> weakButton;
     WeakReference<ProgressBar> weakProgressBar;
     WeakReference<TextView> weakTextView;
+    WeakReference<String> weakPath;
 
-    public DownloadAsyncTask(Button b, ProgressBar pb, TextView tv) {
+    public DownloadAsyncTask(Button b, ProgressBar pb, TextView tv, String path) {
         this.weakButton = new WeakReference<>(b);
         this.weakProgressBar = new WeakReference<>(pb);
         this.weakTextView = new WeakReference<>(tv);
+        this.weakPath = new WeakReference<>(path);
     }
 
     @Override
@@ -26,7 +35,7 @@ public class DownloadAsyncTask extends AsyncTask<Void, Integer, String> {
 
     @Override
     protected String doInBackground(Void... voids) {
-        try {
+        /*try {
             for (int i = 0; i < 100; i++) {
                 Thread.sleep(10);
                 publishProgress(i+1);
@@ -34,7 +43,31 @@ public class DownloadAsyncTask extends AsyncTask<Void, Integer, String> {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        return "";
+        return "";*/
+        int count;
+        try {
+            URL url = new URL("https://arato.inf.unideb.hu/kocsis.gergely/song.mp3");
+            URLConnection connection = url.openConnection();
+            connection.connect();
+            int lenghtOfFile = connection.getContentLength();
+            // input stream to read file - with 8k buffer
+            InputStream input = new BufferedInputStream(url.openStream(),10*1024);
+            // Output stream to write file
+            OutputStream output = new FileOutputStream(weakPath.get() + "/files/song.mp3");
+            byte data[] = new byte[1024];
+            long total = 0;
+            while ((count = input.read(data)) != -1) {
+                total += count;
+                publishProgress((int) ((total * 100) / lenghtOfFile));
+                output.write(data, 0, count);
+            }
+            output.flush();
+            output.close();
+            input.close();
+        } catch (Exception e) {
+            Log.e("Error: ", e.getMessage());
+        }
+        return "Download completed";
     }
 
     @Override
